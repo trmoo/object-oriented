@@ -294,6 +294,48 @@ class A :
 A().nope()
 `, "has no attribute 'nope'");
 errLike('지원 안 하는 모듈', 'import turtle', 'turtle');
+
+console.log('\n── 교안 범위를 넘는 문법은 무엇이 안 되는지 이름을 대어 알려 준다 ──');
+// 상속을 조용히 무시하면 물려받은 메소드를 부를 때 엉뚱한 AttributeError 가 나서 학생이 헤맨다
+errLike('상속은 분명히 안내', `
+class Animal :
+    def speak(self) :
+        print('소리')
+class Dog(Animal) :
+    def __init__(self) :
+        self.__kind = '진돗개'
+d = Dog()
+d.speak()
+`, '상속은 이 앱에서 지원하지 않습니다');
+{
+  const r = runPython(`class Dog(Animal) :\n    pass`);
+  if (!r.ok && r.error.includes('class Dog : 로 쓰세요')) { pass++; console.log('  ok  상속 안내에 고치는 방법 포함'); }
+  else { fail++; console.log('FAIL  상속 안내 문구 →', r.ok ? '오류가 안 남' : r.error); }
+}
+eq('class Foo(object) : 는 통과시킨다', `
+class Dice(object) :
+    def __init__(self) :
+        self.__v = 3
+    def getV(self) :
+        return self.__v
+print(Dice().getV())
+`, '3');
+errLike('try/except 안내', 'try :\n    x = 1\nexcept :\n    pass', '예외 처리(try / except)');
+errLike('try/except 안내에 대안 제시', 'try :\n    x = 1\nexcept :\n    pass', 'if 문으로 값을 미리 검사');
+errLike('lambda 안내', 'f = lambda x : x + 1', 'lambda 를 지원하지 않습니다');
+errLike('with 안내', "with open('a') as f :\n    pass", 'with 문');
+errLike('raise 안내', "raise ValueError('x')", 'raise');
+// 속성·메소드 이름으로 쓰인 경우는 막지 않아야 한다
+eq('with·try 를 이름의 일부로 쓰는 것은 허용', `
+class A :
+    def __init__(self) :
+        self.__withdrawn = 0
+    def withdraw(self, n) :
+        self.__withdrawn = self.__withdrawn + n
+        return self.__withdrawn
+a = A()
+print(a.withdraw(5))
+`, '5');
 errLike('속성인데 괄호 붙임', `
 class A :
     def __init__(self) :
