@@ -290,7 +290,6 @@ table.trace .arrow { color: var(--ink-soft); }
 .part.on { background: #ffd166; color: #1e2233; font-weight: 700; text-decoration: none; }
 .part-info { border: 2px solid var(--brand); border-radius: 12px; padding: 16px; background: var(--brand-soft); }
 .part-info h4 { margin: 0 0 8px; font-size: 20px; color: var(--brand-dark); }
-.part-info .page { font-size: 15px; color: var(--ink-soft); margin-top: 9px; }
 
 /* 빈칸 문제 */
 .quiz-item { border-bottom: 1px solid var(--line); padding: 14px 0; }
@@ -301,6 +300,18 @@ table.trace .arrow { color: var(--ink-soft); }
 .judge { font-weight: 700; font-size: 17px; }
 .judge.ok { color: var(--ok); } .judge.no { color: var(--no); }
 .answer-open { background: #eef4ff; border: 1px solid #cfe0fb; border-radius: 9px; padding: 9px 12px; font-size: 16px; margin-top: 8px; }
+/* 초성 힌트 — 교실 TV 에서도 보이게 크고 넉넉하게 */
+.chosung-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.chosung {
+  font-family: "D2Coding", Consolas, monospace; font-size: 24px; font-weight: 700;
+  letter-spacing: 6px; color: var(--brand-dark);
+  background: #fff; border: 2px solid #cfe0fb; border-radius: 8px; padding: 2px 12px 2px 16px;
+}
+.chosung .cs-no {
+  font-family: "Pretendard", "맑은 고딕", "Malgun Gothic", system-ui, sans-serif;
+  font-size: 14px; font-weight: 600; letter-spacing: 0;
+  color: var(--ink-soft); margin-right: 9px;
+}
 
 /* 분류 활동 */
 .word {
@@ -321,7 +332,6 @@ table.trace .arrow { color: var(--ink-soft); }
 .ex-list { display: flex; gap: 9px; flex-wrap: wrap; margin-bottom: 16px; }
 .ex-btn { background: #fff; color: var(--ink); border-color: var(--line); }
 .ex-btn[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
-.ex-meta { font-size: 16px; color: var(--ink-soft); margin-bottom: 4px; }
 .point { background: #fff8e6; border: 1px solid #f2dda4; border-radius: 10px; padding: 12px 15px; font-size: 17px; margin: 12px 0; }
 .point b { color: #8a5a00; }
 

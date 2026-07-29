@@ -72,7 +72,7 @@ export function mountDesign(root, app) {
       return { level: 'warn', label: '확인', text: '클래스 이름은 영문자·숫자·밑줄만 쓸 수 있고, 숫자로 시작할 수 없습니다. 한글이나 빈칸이 섞이지 않았는지 확인해 보세요.' };
     }
     if (!/^[A-Z]/.test(name)) {
-      return { level: 'warn', label: '확인', text: `첫 문자를 대문자로 바꿔 ${name.charAt(0).toUpperCase()}${name.slice(1)} 처럼 쓰는 것이 규칙입니다. (교안 11쪽)` };
+      return { level: 'warn', label: '확인', text: `첫 문자를 대문자로 바꿔 ${name.charAt(0).toUpperCase()}${name.slice(1)} 처럼 쓰는 것이 규칙입니다.` };
     }
     return { level: 'tip', label: '좋아요', text: `class ${name} : 형태로 정의됩니다.` };
   }
@@ -190,7 +190,7 @@ export function mountDesign(root, app) {
       a.setter && h('div.row.center.sub-row', {},
         h('div.field', {},
           h('label', {}, '설정자에서 잘못된 값 막기 ',
-            h('span.hint', { style: { fontWeight: '400' } }, '(교안 27쪽)')),
+            h('span.hint', { style: { fontWeight: '400' } }, '(정보 은닉의 필요성)')),
           select(GUARDS.filter(([g]) => {
             if (a.type === 'str') return g === 'none' || g === 'nonempty';
             if (a.type === 'bool' || a.type === 'list') return g === 'none';
@@ -231,7 +231,7 @@ export function mountDesign(root, app) {
           },
         }, '+ 메소드 추가')),
       h('div', { style: { marginTop: '14px' } },
-        checkbox('__str__ (문자열 표현 메소드) 도 추가하기 — print(인스턴스) 했을 때 보여 줄 글자를 정한다 (교안 34쪽)',
+        checkbox('__str__ (문자열 표현 메소드) 도 추가하기 — print(인스턴스) 했을 때 보여 줄 글자를 정한다',
           d.useStr, (v) => { d.useStr = v; refresh(true); })),
     );
     return box;

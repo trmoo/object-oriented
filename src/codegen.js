@@ -153,7 +153,7 @@ function methodBody(m, design) {
   return L;
 }
 
-/** 설정자 본문 (유효성 검사 옵션 포함 — 교안 27쪽 「정보 은닉의 필요성」) */
+/** 설정자 본문 (유효성 검사 옵션 포함 — 교안의 「정보 은닉의 필요성」) */
 function setterBody(a) {
   const priv = `self.__${a.name}`;
   const kor = a.kor || a.name;
@@ -249,7 +249,7 @@ export function generate(design, withMarks = true) {
     methodBody(m, design).forEach((l) => L.push(l ? `${IND}${IND}${l}` : ''));
   });
 
-  /* ── 문자열 표현 메소드 (교안 34쪽) ── */
+  /* ── 문자열 표현 메소드 ── */
   if (design.useStr && attrs.length) {
     L.push('');
     if (!marks[5]) mark(5);

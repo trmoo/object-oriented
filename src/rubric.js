@@ -95,7 +95,7 @@ export function grade(src) {
   if (main) {
     set(1, `class ${main.name} 을(를) 찾았습니다.`);
     if (!/^[A-Z]/.test(main.name)) {
-      notes.push({ level: 'warn', text: `클래스 이름 '${main.name}' 의 첫 문자를 대문자로 바꾸는 것이 좋습니다. (교안 11쪽)` });
+      notes.push({ level: 'warn', text: `클래스 이름 '${main.name}' 의 첫 문자를 대문자로 바꾸는 것이 좋습니다.` });
     }
     if (PY_KEYWORDS.has(main.name)) {
       notes.push({ level: 'warn', text: `'${main.name}' 은(는) 파이썬이 이미 쓰는 이름입니다. 다른 이름으로 바꿔 주세요.` });
@@ -227,7 +227,7 @@ export function grade(src) {
     /* ── self 를 빠뜨린 메소드 찾기 ── */
     const noSelf = methods.filter((m) => !m.params.length || m.params[0].name !== 'self');
     if (noSelf.length) {
-      notes.push({ level: 'warn', text: `${noSelf.map((m) => m.name + '( )').join(', ')} 의 첫 매개변수가 self 가 아닙니다. 모든 메소드의 첫 매개변수는 self 입니다. (교안 12쪽)` });
+      notes.push({ level: 'warn', text: `${noSelf.map((m) => m.name + '( )').join(', ')} 의 첫 매개변수가 self 가 아닙니다. 모든 메소드의 첫 매개변수는 self 입니다.` });
     }
   }
 

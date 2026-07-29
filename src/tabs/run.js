@@ -235,7 +235,7 @@ export function mountRun(root, app) {
 
         h('section.card', {},
           h('h2', {}, '🔒 정보 은닉 실험'),
-          h('p.hint', {}, '「왜 굳이 메소드를 거쳐서 속성을 다뤄야 하는가?」를 직접 확인해 봅시다. (교안 25~28쪽)'),
+          h('p.hint', {}, '「왜 굳이 메소드를 거쳐서 속성을 다뤄야 하는가?」를 직접 확인해 봅시다.'),
           h('div.btn-row', {},
             h('button.ghost', { onclick: hideExperiment }, '비공개 속성을 직접 꺼내 보기'),
             h('button.ghost', { onclick: openExperiment }, '공개 속성에 이상한 값 넣어 보기')),
