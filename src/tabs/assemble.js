@@ -1,9 +1,9 @@
 /* ============================================================================
  * tabs/assemble.js — 탭① 부품 조립 연습
- *   ① 문법 해부   : 클래스 정의 골격을 눌러 각 부분의 뜻을 확인 (교안 9~15쪽)
- *   ② 상태·동작 분류 : 객체 = 상태 + 동작 (교안 6쪽)
+ *   ① 문법 해부   : 클래스 정의 골격을 눌러 각 부분의 뜻을 확인
+ *   ② 상태·동작 분류 : 객체 = 상태 + 동작
  *   ③ 코드 조립   : 흩어진 줄을 올바른 순서·들여쓰기로 맞추기
- *   ④ 빈칸 채우기 : 학습지 30~31쪽 개념 정리
+ *   ④ 빈칸 채우기 : 학습지의 개념 정리
  * ========================================================================== */
 
 import { h, text, highlight } from '../ui.js';
@@ -27,7 +27,7 @@ function anatomySection() {
     info.append(
       h('h4', {}, p.title),
       h('div', {}, p.body),
-      h('div.page', {}, p.page));
+    );
     for (const b of pre.querySelectorAll('.part')) b.classList.toggle('on', b.dataset.key === key);
   }
 
@@ -44,7 +44,7 @@ function anatomySection() {
 
   return h('section.card', {},
     h('h2', {}, h('span.step', {}, '1'), '클래스 정의 해부하기'),
-    h('p.hint', {}, '교안 9~15쪽에서 한 장씩 넘기며 배운 내용입니다. 색칠된 부분을 눌러 보세요.'),
+    h('p.hint', {}, '수업에서 한 장씩 넘기며 배운 내용입니다. 색칠된 부분을 눌러 보세요.'),
     h('div.anatomy', {}, pre, info));
 }
 
@@ -121,7 +121,7 @@ function sortSection() {
   draw();
   return h('section.card', {},
     h('h2', {}, h('span.step', {}, '2'), '객체 = 상태 + 동작 으로 나누기'),
-    h('p.hint', {}, '교안 6쪽 표를 직접 채워 봅시다. 낱말을 눌러 상태(속성)와 동작(기능)으로 나누세요.'),
+    h('p.hint', {}, '교안의 표를 직접 채워 봅시다. 낱말을 눌러 상태(속성)와 동작(기능)으로 나누세요.'),
     box,
     h('div.btn-row', {}, h('button', { onclick: check }, '정답 확인'),
       h('button.soft', { onclick: () => { for (const k of Object.keys(state)) delete state[k]; judge.textContent = ''; draw(); } }, '다시 하기')),
@@ -249,6 +249,39 @@ function assembleSection(app) {
 }
 
 /* ══════════════════ ④ 빈칸 채우기 ════════════════════════════════════════ */
+
+/* 한글 낱자의 첫소리(초성) 19개 — 유니코드 순서 그대로다 */
+const LEAD = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
+  'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+
+/**
+ * 답을 초성 힌트로 바꾼다.
+ *   '상태'     → 'ㅅㅌ'
+ *   'class'    → 'c····'      (영문은 첫 글자만 남긴다)
+ *   '__init__' → '__i···__'   (밑줄 같은 기호는 그대로 보여 준다)
+ */
+function toChosung(word) {
+  const chars = [...String(word)];
+  let firstLatinDone = false;
+  return chars.map((ch) => {
+    const c = ch.charCodeAt(0);
+    // 한글 낱자(가~힣) 이면 초성만 뽑는다
+    if (c >= 0xac00 && c <= 0xd7a3) return LEAD[Math.floor((c - 0xac00) / 588)];
+    if (/[A-Za-z]/.test(ch)) {
+      if (!firstLatinDone) { firstLatinDone = true; return ch; }
+      return '·';
+    }
+    if (/[0-9]/.test(ch)) return '·';
+    return ch; // 밑줄·점 같은 기호는 그대로
+  }).join('');
+}
+
+/** 인정하는 답이 여러 개면 한글이 든 것을 골라 초성을 만든다 (예: 2 / 두 / 둘 → ㄷ) */
+function chosungOf(alts) {
+  const pick = alts.find((w) => /[가-힣]/.test(w)) || alts[0];
+  return toChosung(pick);
+}
+
 function blankSection() {
   const list = h('div');
   const rows = BLANKS.map((q, i) => {
@@ -274,7 +307,15 @@ function blankSection() {
     }
     function hint() {
       extra.textContent = '';
-      extra.append(h('div.answer-open', {}, h('b', {}, '힌트 '), q.hint));
+      /* 설명 힌트와 함께 초성을 보여 준다. 빈칸이 여러 개면 순서대로 나란히 놓는다. */
+      extra.append(
+        h('div.answer-open', {}, h('b', {}, '힌트 '), q.hint),
+        h('div.answer-open.chosung-row', {},
+          h('b', {}, '초성 '),
+          q.a.map((alts, k) => h('span.chosung', {},
+            q.a.length > 1 ? h('span.cs-no', {}, `${k + 1}번째`) : null,
+            chosungOf(alts)))),
+      );
     }
     function answer() {
       extra.textContent = '';
@@ -296,6 +337,6 @@ function blankSection() {
 
   return h('section.card', {},
     h('h2', {}, h('span.step', {}, '4'), '개념 빈칸 채우기'),
-    h('p.hint', {}, '학습지 30~31쪽의 빈칸입니다. 시험에 그대로 나올 수 있는 용어들입니다.'),
+    h('p.hint', {}, '학습지의 빈칸입니다. 시험에 그대로 나올 수 있는 용어들입니다.'),
     list);
 }

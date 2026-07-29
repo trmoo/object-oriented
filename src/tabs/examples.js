@@ -62,7 +62,6 @@ export function mountExamples(root, app) {
 
     bodyBox.textContent = '';
     bodyBox.append(
-      h('div.ex-meta', {}, ex.page),
       h('div.point', {}, h('b', {}, '핵심 '), ex.point),
       h('div.two-col', {},
         h('div', {},
