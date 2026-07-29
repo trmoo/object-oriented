@@ -265,7 +265,26 @@ class Parser {
     return out;
   }
 
+  /* 교안 범위를 넘는 문법들 — 그냥 SyntaxError 를 내면 학생이 원인을 못 찾으므로
+   * 무엇이 지원되지 않는지 이름을 대어 알려 준다. */
+  checkUnsupported() {
+    const t = this.peek();
+    if (t.type !== 'NAME') return;
+    const guide = {
+      try: '예외 처리(try / except)', except: '예외 처리(try / except)', finally: '예외 처리(try / finally)',
+      raise: '오류 일으키기(raise)', assert: '단정문(assert)', with: 'with 문',
+      yield: 'yield', nonlocal: 'nonlocal 선언', async: 'async 문법', await: 'await 문법',
+    }[t.value];
+    if (!guide) return;
+    // 조사를 붙이면 「…(try / except) 을(를)」 처럼 어색해지므로 줄표로 잇는다
+    err('지원하지 않는 문법', `${guide} — 이 앱에서는 쓸 수 없습니다`, t.line,
+      t.value === 'try' || t.value === 'except' || t.value === 'finally'
+        ? '교안 범위에서는 if 문으로 값을 미리 검사하세요. 예) if age < 0 : print(\'잘못된 값\')'
+        : '교안에 나오는 문법(class · def · if · while · for · print)으로 바꿔 써 보세요.');
+  }
+
   statement() {
+    this.checkUnsupported();
     const t = this.peek();
     if (t.type === 'KEY') {
       switch (t.value) {
@@ -283,14 +302,27 @@ class Parser {
     const line = this.line;
     this.next(); // class
     const name = this.expect('NAME', undefined, '클래스 이름').value;
-    if (this.eat('OP', '(')) { // 상속은 무시하고 넘어간다 (교안 범위 밖)
+
+    /* 상속은 교안 범위 밖이라 지원하지 않는다.
+     * 그런데 조용히 무시하면 물려받은 메소드를 부를 때
+     * 「그런 메소드가 없다」는 엉뚱한 오류가 나서 학생이 헤맨다.
+     * 그래서 여기서 분명히 알려 준다. class Foo(object) : 는 예외로 통과시킨다. */
+    if (this.eat('OP', '(')) {
+      const bases = [];
       let d = 1;
       while (d > 0 && !this.at('EOF')) {
         const x = this.next();
         if (x.type === 'OP' && x.value === '(') d++;
-        if (x.type === 'OP' && x.value === ')') d--;
+        else if (x.type === 'OP' && x.value === ')') d--;
+        else if (x.type === 'NAME' && d === 1) bases.push(x.value);
+      }
+      const real = bases.filter((b) => b !== 'object');
+      if (real.length) {
+        err('지원하지 않는 문법', `class ${name}(${real.join(', ')}) — 상속은 이 앱에서 지원하지 않습니다`, line,
+          `괄호와 그 안의 이름을 지우고 class ${name} : 로 쓰세요. 필요한 속성과 메소드는 이 클래스 안에 직접 정의해야 합니다. (상속은 교안 범위를 넘는 내용입니다)`);
       }
     }
+
     const body = this.block(`class ${name}`);
     return { type: 'ClassDef', name, body, line };
   }
@@ -522,7 +554,14 @@ class Parser {
       return { type: 'Str', v: s, line };
     }
     if (t.type === 'FSTRING') { this.next(); return parseFString(t.value, line); }
-    if (t.type === 'NAME') { this.next(); return { type: 'Name', id: t.value, line }; }
+    if (t.type === 'NAME') {
+      if (t.value === 'lambda') {
+        err('지원하지 않는 문법', '이 앱은 lambda 를 지원하지 않습니다', line,
+          'def 로 메소드를 정의해 주세요. 교안에서 쓰는 방식입니다.');
+      }
+      this.next();
+      return { type: 'Name', id: t.value, line };
+    }
     if (t.type === 'KEY') {
       if (t.value === 'True') { this.next(); return { type: 'Const', v: BOOL(true), line }; }
       if (t.value === 'False') { this.next(); return { type: 'Const', v: BOOL(false), line }; }
