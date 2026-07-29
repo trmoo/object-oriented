@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>나만의 클래스 설계실 — 객체 지향 프로그래밍</title>
+  <meta name="description" content="고등학교 정보·프로그래밍 「객체 지향 프로그래밍」 단원 학습용 웹앱. 클래스를 직접 설계하고 코드를 만들어 실행해 본다." />
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+  <header>
+    <div class="head-row">
+      <h1>나만의 클래스 설계실</h1>
+      <span class="sub">객체 지향 프로그래밍 · 클래스 · 인스턴스 · 정보 은닉 &nbsp;|&nbsp; <span class="mono">[12정03-08]</span></span>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="학습 단계">
+      <button class="tab" role="tab" id="tab-design"   aria-controls="panel-design"   aria-selected="true"><span class="num">1</span>클래스 설계실</button>
+      <button class="tab" role="tab" id="tab-run"      aria-controls="panel-run"      aria-selected="false"><span class="num">2</span>실행해 보기</button>
+      <button class="tab" role="tab" id="tab-assemble" aria-controls="panel-assemble" aria-selected="false"><span class="num">3</span>부품 조립 연습</button>
+      <button class="tab" role="tab" id="tab-examples" aria-controls="panel-examples" aria-selected="false"><span class="num">4</span>교안 예제</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="panel-page on" id="panel-design"   role="tabpanel" aria-labelledby="tab-design"></section>
+    <section class="panel-page"    id="panel-run"      role="tabpanel" aria-labelledby="tab-run"></section>
+    <section class="panel-page"    id="panel-assemble" role="tabpanel" aria-labelledby="tab-assemble"></section>
+    <section class="panel-page"    id="panel-examples" role="tabpanel" aria-labelledby="tab-examples"></section>
+  </main>
+
+  <!-- 인쇄 버튼을 누르면 이 부분만 종이에 나온다 (수행평가 설계지 모양) -->
+  <div id="print-sheet"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

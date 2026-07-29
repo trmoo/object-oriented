@@ -1,0 +1,22 @@
+# 의존성·빌드 결과물은 올리지 않는다 (루트 CLAUDE.md 규칙)
+node_modules/
+dist/
+
+# 로컬 전용 메모 — 교사 문서 폴더의 실제 경로가 적혀 있어 공개하지 않는다
+LOCAL-NOTES.md
+
+# 교안·수행평가 원본 PDF 는 저작권 때문에 저장소에 올리지 않는다.
+# 필요한 내용은 CLAUDE.md 의 요약에 담아 두었다.
+*.pdf
+*.hwp
+*.hwpx
+*.pptx
+*.show
+
+# 편집기·운영체제가 만드는 파일
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+*.log
+npm-debug.log*
