@@ -1,0 +1,18 @@
+{
+  "name": "object-oriented",
+  "private": true,
+  "version": "1.0.0",
+  "description": "나만의 클래스 설계실 — 고등학교 정보/프로그래밍 객체 지향 프로그래밍 학습 웹앱",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite --open",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node test/pymini.test.mjs && node test/rubric.test.mjs"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10",
+    "vite-plugin-singlefile": "^2.0.3"
+  }
+}
