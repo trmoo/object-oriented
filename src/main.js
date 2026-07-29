@@ -4,12 +4,15 @@
  * ========================================================================== */
 
 import { emptyDesign } from './codegen.js';
-import { mountDesign } from './tabs/design.js';
-import { mountRun } from './tabs/run.js';
 import { mountAssemble } from './tabs/assemble.js';
 import { mountExamples } from './tabs/examples.js';
+import { mountDesign } from './tabs/design.js';
+import { mountRun } from './tabs/run.js';
 
-const TABS = ['design', 'run', 'assemble', 'examples'];
+/* 탭 순서 = 수업 흐름.
+ * ① 부품 익히기 → ② 예제 살펴보기 → ③ 내 클래스 설계 → ④ 실행해 보기
+ * 이 배열의 순서는 index.html 의 버튼·패널 순서와 같게 유지한다. */
+const TABS = ['assemble', 'examples', 'design', 'run'];
 
 /** 모든 탭이 함께 쓰는 알림판 */
 const app = {
@@ -35,10 +38,10 @@ function start() {
   for (const t of TABS) {
     document.getElementById(`tab-${t}`).addEventListener('click', () => goTab(t));
   }
-  app.designTab = mountDesign(document.getElementById('panel-design'), app);
-  app.run = mountRun(document.getElementById('panel-run'), app);
   mountAssemble(document.getElementById('panel-assemble'), app);
   mountExamples(document.getElementById('panel-examples'), app);
+  app.designTab = mountDesign(document.getElementById('panel-design'), app);
+  app.run = mountRun(document.getElementById('panel-run'), app);
 }
 
 /* 빌드 결과물은 <head> 안의 일반 스크립트로 들어간다(더블클릭 실행을 위해).
