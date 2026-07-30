@@ -2,7 +2,7 @@
  * 실행: node test/rubric.test.mjs
  */
 import { grade } from '../src/rubric.js';
-import { emptyDesign, newAttr, newMethod, generate, designSheet, designFromIdea } from '../src/codegen.js';
+import { emptyDesign, newAttr, newMethod, generate, designFromIdea } from '../src/codegen.js';
 import { runPython } from '../src/pymini.js';
 import { EXAMPLES, CLASS_IDEAS, ASSEMBLE } from '../src/data.js';
 
@@ -21,7 +21,6 @@ console.log('\n── 설계실이 만든 코드는 평가요소 7개를 모두 
 {
   const d = emptyDesign();
   d.className = 'Car';
-  d.korName = '자동차';
   d.attrs = [
     newAttr({ name: 'speed', kor: '속력', type: 'int', init: '0', fromParam: true, getter: true, setter: true, guard: 'min', gmin: '0' }),
     newAttr({ name: 'color', kor: '색상', type: 'str', init: "'red'", fromParam: true, getter: true, setter: false }),
@@ -46,10 +45,6 @@ console.log('\n── 설계실이 만든 코드는 평가요소 7개를 모두 
 
   if ([1, 2, 3, 4, 5, 6, 7].every((n) => marks[n] > 0)) ok('평가요소 줄 표시(marks) 모두 있음');
   else no('marks', JSON.stringify(marks));
-
-  const s = designSheet(d);
-  if (s.className === 'Car' && s.attrs.includes('__speed') && s.create.includes('myCar = Car(')) ok('설계지 요약');
-  else no('설계지 요약', JSON.stringify(s));
 }
 
 console.log('── 설정자 유효성 검사가 실제로 잘못된 값을 막는지 ──');

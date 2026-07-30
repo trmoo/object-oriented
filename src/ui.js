@@ -122,22 +122,8 @@ export function download(filename, text, type = 'text/plain') {
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 
-/** 파일 하나 고르기 → 글자 내용 돌려주기 */
-export function pickFile(accept) {
-  return new Promise((resolve) => {
-    const input = h('input', { type: 'file', accept, style: { display: 'none' } });
-    input.addEventListener('change', () => {
-      const f = input.files && input.files[0];
-      if (!f) { resolve(null); input.remove(); return; }
-      const fr = new FileReader();
-      fr.onload = () => { resolve(String(fr.result).replace(/^﻿/, '')); input.remove(); };
-      fr.onerror = () => { resolve(null); input.remove(); };
-      fr.readAsText(f, 'utf-8');
-    });
-    document.body.append(input);
-    input.click();
-  });
-}
+/* 파일 열기(pickFile)는 「설계 불러오기」와 함께 없앴다. (2026-07-30)
+   파일을 읽어 들이는 기능이 다시 필요해지면 이 자리에 되살릴 것. */
 
 /** 여러 개 중 하나를 고르는 <select> */
 export function select(options, value, onchange, cls = '') {

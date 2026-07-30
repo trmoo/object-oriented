@@ -6,9 +6,9 @@
  * 평가요소 7가지가 자동으로 확인된다.
  * ========================================================================== */
 
-import { h, text, checkbox, select, highlight, toast, copyText, download, pickFile } from '../ui.js';
+import { h, text, checkbox, select, highlight, toast, copyText, download } from '../ui.js';
 import {
-  emptyDesign, newAttr, newMethod, generate, designSheet, designFromIdea,
+  emptyDesign, newAttr, newMethod, generate, designFromIdea,
   getterName, setterName, DEFAULT_INIT, METHOD_KINDS, ctorParams,
 } from '../codegen.js';
 import { grade } from '../rubric.js';
@@ -55,10 +55,6 @@ export function mountDesign(root, app) {
           h('label', { for: 'in-cls' }, '영문 클래스명'),
           text(d.className, (v) => { d.className = v.trim(); refresh(); },
             { id: 'in-cls', class: 'code w-lg', placeholder: '예) Car', maxlength: '30' })),
-        h('div.field', {},
-          h('label', { for: 'in-kor' }, '한글 뜻 (화면 문구에 쓰임)'),
-          text(d.korName, (v) => { d.korName = v; refresh(); },
-            { id: 'in-kor', class: 'w-md', placeholder: '예) 자동차', maxlength: '20' })),
         h('button.ghost', { onclick: togglePicker }, '📋 예시 49개에서 고르기'),
       ),
       warn && h('div.note', { class: warn.level }, h('b', {}, warn.label), warn.text),
@@ -388,7 +384,7 @@ export function mountDesign(root, app) {
     return h('section.card', {},
       h('h2', {}, h('span.step', {}, '5'), '저장하고 제출 준비하기'),
       h('p.hint', {}, '이 앱은 브라우저에 아무것도 저장하지 않습니다. 창을 닫으면 설계가 사라지니 ',
-        h('b', {}, '반드시 파일로 저장'), '하세요.'),
+        h('b', {}, '코드를 복사하거나 .py 파일로 저장'), '해 두세요.'),
       h('div.btn-row', {},
         h('button', { onclick: () => app.sendToRun(generate(d, false).code, { from: '설계실' }) }, '▶ 실행해 보기'),
         h('button.ghost', {
@@ -405,14 +401,6 @@ export function mountDesign(root, app) {
         }, '💾 .py 파일로 저장'),
         h('button.soft', {
           onclick: () => {
-            download(`${d.className || 'MyClass'}_설계.json`, JSON.stringify(d, null, 2), 'application/json');
-            toast('설계 파일을 저장했습니다. 다음 시간에 불러올 수 있습니다.');
-          },
-        }, '📁 설계 저장 (.json)'),
-        h('button.soft', { onclick: loadDesign }, '📂 설계 불러오기'),
-        h('button.soft', { onclick: doPrint }, '🖨 설계지 인쇄'),
-        h('button.soft', {
-          onclick: () => {
             if (!confirm('설계를 모두 지우고 처음부터 다시 시작할까요?')) return;
             Object.assign(d, emptyDesign());
             refresh(true);
@@ -420,25 +408,8 @@ export function mountDesign(root, app) {
           },
         }, '🗑 처음부터'),
       ),
-      h('p.hint', {}, '수행평가(3차시)는 컴퓨터실 IDLE 에서 직접 타이핑합니다. 이 앱은 ',
+      h('p.hint', {}, '수행평가는 컴퓨터실 IDLE 에서 직접 타이핑합니다. 이 앱은 ',
         h('b', {}, '설계와 연습'), '을 돕는 도구입니다. 손으로 쳐 보는 연습을 꼭 하세요.'));
-  }
-
-  async function loadDesign() {
-    const txt = await pickFile('.json,application/json');
-    if (!txt) return;
-    try {
-      const obj = JSON.parse(txt);
-      if (!obj || typeof obj !== 'object' || !Array.isArray(obj.attrs) || !Array.isArray(obj.methods)) {
-        throw new Error('형식이 맞지 않습니다');
-      }
-      Object.assign(d, emptyDesign(), obj);
-      d.calls = Array.isArray(obj.calls) ? obj.calls : [];
-      refresh(true);
-      toast('설계를 불러왔습니다.');
-    } catch (e) {
-      toast(`설계 파일을 읽을 수 없습니다. (${e.message})`);
-    }
   }
 
   /* ── 오른쪽: 코드 + 평가요소 ─────────────────────────────────────────── */
@@ -507,30 +478,6 @@ export function mountDesign(root, app) {
       '입니다. 실제 채점은 선생님이 하며, 평가요소 6가지 이상이면 20점입니다.'));
   }
 
-  /* ── 인쇄용 설계지 ───────────────────────────────────────────────────── */
-  function doPrint() {
-    const sheet = designSheet(d);
-    const { code } = generate(d, false);
-    const g = grade(code);
-    const box = document.getElementById('print-sheet');
-    box.textContent = '';
-    box.append(
-      h('h2', {}, '[객체지향 프로그래밍] 수행평가 설계지'),
-      h('div.who', {}, '1학년 　　반 　　번  성명: ＿＿＿＿＿＿＿＿　　　▣ 나만의 클래스를 만들어 객체를 생성하고 활용해보시오.'),
-      h('table', {},
-        h('tr', {}, h('th', {}, '클래스 이름'), h('td', {}, sheet.className)),
-        h('tr', {}, h('th', {}, '비공개 속성'), h('td', {}, sheet.attrs)),
-        h('tr', {}, h('th', {}, '메소드'), h('td', {}, sheet.methods)),
-        h('tr', {}, h('th', {}, '객체 생성'), h('td', {}, sheet.create)),
-        h('tr', {}, h('th', {}, '객체를 활용한 메소드 호출'), h('td', {}, sheet.calls))),
-      h('h3', {}, '클래스 정의 + 인스턴스 생성 및 활용'),
-      h('pre', {}, code),
-      h('div.rubric-print', {},
-        h('b', {}, `평가요소 자동 확인: ${g.count} / 7`),
-        h('ul', {}, g.items.map((it) => h('li', {}, `${it.pass ? '☑' : '☐'} 평가요소 ${it.n} — ${it.title}`)))),
-    );
-    window.print();
-  }
 
   /* ── 보조 ────────────────────────────────────────────────────────────── */
   function swap(arr, i, j) { [arr[i], arr[j]] = [arr[j], arr[i]]; }
