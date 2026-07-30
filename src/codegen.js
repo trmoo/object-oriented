@@ -281,63 +281,25 @@ export function generate(design, withMarks = true) {
   return { code: L.join('\n'), marks };
 }
 
-/** 예시 메소드 이름과 속성 자료형을 보고 알맞은 동작 템플릿을 짐작한다 */
-export function guessKind(attr, methodName) {
-  const t = attr[2];
-  const n = String(methodName).toLowerCase();
-  if (/^calc/.test(n)) return 'calc';
-  if (/^(print|show|report)/.test(n)) return 'print';
-  if (/^(is|check)/.test(n)) return t === 'bool' ? 'toggle' : 'check';
-  if (t === 'bool') return 'toggle';
-  if (/^reset/.test(n)) return 'reset';
-  /* 값을 줄이는 뜻의 낱말들 — 출금·사용·지불·판매·착륙 등 */
-  if (/^(withdraw|pay|use|spend|sell|down|land|stop|drop|remove|dec|discount|volumedown)/.test(n)) return 'dec';
-  if (t === 'str' || t === 'list') return 'print';
-  return 'inc';
-}
-
-/** 클래스 예시(CLASS_IDEAS 의 한 항목) → 바로 쓸 수 있는 설계 */
+/**
+ * 클래스 예시(CLASS_IDEAS 의 한 항목) → 설계의 출발점
+ *
+ * **클래스 이름과 속성까지만 채운다. 메소드와 호출은 비워 둔다.** (2026-07-30 지시)
+ * 메소드를 무엇으로 만들지 정하는 것이 이 수행평가에서 학생이 할 설계이고
+ * 평가요소 5의 핵심이다. 앱이 채워 주면 학생이 할 일이 없어진다.
+ * 그래서 예시를 골라도 평가요소는 5/7 이고, 메소드 하나와 호출 하나가 숙제로 남는다.
+ */
 export function designFromIdea(idea) {
   const d = emptyDesign();
   d.className = idea.en;
   d.attrs = idea.attrs.map(([name, kor, type, init], i) => newAttr({
     name, kor, type, init,
-    fromParam: i === 0,
-    getter: true,
-    setter: i === 0,
-    guard: type === 'int' || type === 'float' ? 'min' : 'none',
-    gmin: '0',
+    fromParam: i === 0,   // 첫 속성만 생성자에서 받게 두고, 나머지는 초깃값 고정
   }));
-  /* 동작 템플릿에 맞는 속성을 골라 준다.
-     숫자를 더하고 빼는 템플릿에 문자열 속성이 걸리면 실행할 때 오류가 나기 때문이다. */
-  const numAttr = idea.attrs.find((a) => ['int', 'float'].includes(a[2]));
-  const boolAttr = idea.attrs.find((a) => a[2] === 'bool');
-  d.methods = idea.methods.slice(0, 1).map(([name, kor]) => {
-    let kind = guessKind(idea.attrs[0], name);
-    let target = idea.attrs[0];
-    if (['inc', 'dec', 'calc', 'check'].includes(kind)) {
-      if (numAttr) target = numAttr;
-      else kind = 'print';                       // 숫자 속성이 없으면 출력으로 바꾼다
-    } else if (kind === 'toggle') {
-      if (boolAttr) target = boolAttr;
-      else kind = 'print';
-    }
-    /* 늘리기·줄이기·검사하기는 매개변수를 받는 형태로 만들어 준다.
-       매개변수 있는 메소드를 호출해 보는 것도 수행평가에 나오는 연습이다. */
-    const takesParam = ['inc', 'dec', 'check'].includes(kind);
-    return newMethod({
-      name, kor, kind, attr: target[0],
-      param: takesParam ? 'amount' : '', amount: '1',
-    });
-  });
   d.instName = 'my' + idea.en;
+  d.methods = [];
+  d.calls = [];
   d.useStr = false;
-  const m0 = d.methods[0];
-  d.calls = [
-    // 계산해서 돌려주는 메소드는 print( ) 로 감싸야 결과가 화면에 보인다
-    { name: m0.name, args: m0.param ? '10' : '', print: m0.kind === 'calc' },
-    { name: getterName(idea.attrs[0][0]), args: '', print: true },
-  ];
   return d;
 }
 
