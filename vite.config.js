@@ -10,15 +10,25 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
  * 개발 서버(npm start)는 그대로 ES 모듈로 돌아가므로 작업하기에도 편하다.
  */
 /* 모든 파일이 다 쓰인 뒤(closeBundle) 마지막으로 손본다.
- * 이 시점이라야 singlefile 이 코드를 안에 집어넣기를 끝낸 상태다. */
-const plainScript = {
-  name: 'plain-script-for-file-protocol',
+ * 이 시점이라야 singlefile 이 코드를 안에 집어넣기를 끝낸 상태다.
+ *
+ * 여기서 두 가지를 한다.
+ *   ① <script type="module"> 을 일반 <script> 로 바꾼다 (더블클릭 실행용)
+ *   ② 결과물의 내용 해시를 버전으로 박고 dist/version.txt 로도 내보낸다
+ *      → 브라우저가 옛 index.html 을 캐시해도 자동으로 새로 받아 온다 (src/freshness.js)
+ */
+const VERSION_MARK = '__APP_VERSION__';
+
+const finishBuild = {
+  name: 'plain-script-and-version-stamp',
   enforce: 'post',
   async closeBundle() {
     const { readFile, writeFile } = await import('node:fs/promises');
-    const file = new URL('./dist/index.html', import.meta.url);
+    const { createHash } = await import('node:crypto');
+    const dir = new URL('./dist/', import.meta.url);
+    const file = new URL('index.html', dir);
     let html = await readFile(file, 'utf8');
-    const before = html;
+
     html = html
       .replace(/<script\s+type="module"\s+crossorigin\s*>/g, '<script>')
       .replace(/<script\s+type="module"\s*>/g, '<script>')
@@ -30,16 +40,27 @@ const plainScript = {
     if (/type="module"/.test(html)) {
       throw new Error(
         '빌드 결과에 type="module" 이 남아 있습니다. 더블클릭(file://) 실행이 막힐 수 있습니다.\n'
-        + 'vite.config.js 의 plainScript 플러그인 정규식이 <script> 태그 모양과 맞는지 확인하세요.');
+        + 'vite.config.js 의 정규식이 <script> 태그 모양과 맞는지 확인하세요.');
     }
-    if (html === before) return; // 바꿀 것이 없으면 다시 쓰지 않는다
+
+    /* ② 버전 도장. 자리표시자가 들어 있는 상태의 내용으로 해시를 만들기 때문에
+       내용이 같으면 버전도 같다 → 괜한 새로고침이 일어나지 않는다. */
+    if (!html.includes(VERSION_MARK)) {
+      throw new Error(
+        `index.html 에 <meta name="app-version" content="${VERSION_MARK}"> 이 없습니다.\n`
+        + '이것이 없으면 배포 후에도 학생 화면이 캐시된 옛 버전에 머무를 수 있습니다.');
+    }
+    const version = createHash('sha256').update(html).digest('hex').slice(0, 12);
+    html = html.replace(new RegExp(VERSION_MARK, 'g'), version);
+
     await writeFile(file, html, 'utf8');
+    await writeFile(new URL('version.txt', dir), `${version}\n`, 'utf8');
   },
 };
 
 export default defineConfig({
   base: './',            // GitHub Pages 하위 경로에서도 자원 경로가 맞도록
-  plugins: [viteSingleFile({ useRecommendedBuildConfig: false }), plainScript],
+  plugins: [viteSingleFile({ useRecommendedBuildConfig: false }), finishBuild],
   build: {
     outDir: 'dist',
     assetsInlineLimit: 100000000,

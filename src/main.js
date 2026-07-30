@@ -4,6 +4,7 @@
  * ========================================================================== */
 
 import { emptyDesign } from './codegen.js';
+import { checkFresh } from './freshness.js';
 import { mountAssemble } from './tabs/assemble.js';
 import { mountExamples } from './tabs/examples.js';
 import { mountDesign } from './tabs/design.js';
@@ -35,6 +36,9 @@ function goTab(id) {
 }
 
 function start() {
+  /* 배포된 새 버전이 있으면 곧바로 다시 불러온다.
+     학생이 손을 대기 전에만 동작하므로 작업이 사라질 일은 없다. */
+  checkFresh();
   for (const t of TABS) {
     document.getElementById(`tab-${t}`).addEventListener('click', () => goTab(t));
   }
