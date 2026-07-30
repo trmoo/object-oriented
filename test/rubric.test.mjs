@@ -192,9 +192,9 @@ console.log('\n── 점수 구간이 배점표와 맞는지 ──');
 }
 
 console.log('\n── 클래스 예시 49개를 모두 골라 봤을 때 ──');
-/* 예시는 클래스 이름과 속성까지만 채운다. 메소드·호출은 학생이 설계할 몫으로 남긴다.
-   그래서 평가요소는 1·2·3·4 만 만족하고 5(그 외 메소드)·7(메소드 호출)은 미달이어야 한다.
-   6(인스턴스 생성)은 인스턴스명이 채워져 있으므로 만족한다. */
+/* 예시는 클래스 이름만 채우고 속성은 「제안 목록」으로만 건넨다.
+   속성을 만들어 주면 생성자·접근자·설정자가 딸려 생겨서 평가요소 2·3·4 를
+   앱이 대신 채워 준 셈이 된다. 그래서 만족하는 것은 1(클래스 정의)과 6(인스턴스 생성)뿐이다. */
 {
   const bad = [];
   for (const idea of CLASS_IDEAS) {
@@ -204,36 +204,37 @@ console.log('\n── 클래스 예시 49개를 모두 골라 봤을 때 ──'
     const g = grade(code);
     const got = g.items.filter((i) => i.pass).map((i) => i.n).join(',');
     if (!r.ok) bad.push(`${idea.en} 실행실패: ${r.error.split('\n')[0]}`);
-    else if (got !== '1,2,3,4,6') bad.push(`${idea.en} 만족한 평가요소가 ${got} (기대: 1,2,3,4,6)`);
-    else if (d.methods.length) bad.push(`${idea.en} 메소드가 채워졌다 (비어 있어야 함)`);
-    else if (d.calls.length) bad.push(`${idea.en} 호출이 채워졌다 (비어 있어야 함)`);
+    else if (got !== '1,6') bad.push(`${idea.en} 만족한 평가요소가 ${got} (기대: 1,6)`);
+    else if (d.attrs.length) bad.push(`${idea.en} 속성이 채워졌다 (제안만 해야 함)`);
+    else if (d.methods.length || d.calls.length) bad.push(`${idea.en} 메소드·호출이 채워졌다`);
+    else if (d.attrIdeas.length !== idea.attrs.length) bad.push(`${idea.en} 속성 제안 개수가 다르다`);
     else if (g.notes.some((n) => n.level === 'warn')) bad.push(`${idea.en} 경고: ${g.notes.filter((n) => n.level === 'warn')[0].text}`);
   }
-  if (!bad.length) ok('예시 49개 전부 → 실행 성공 + 평가요소 1,2,3,4,6 만족(5·7은 숙제) + 경고 없음');
+  if (!bad.length) ok('예시 49개 전부 → 실행 성공 + 평가요소 1,6 만 만족 + 속성은 제안만 + 경고 없음');
   else no('예시 49개 점검', bad.join('\n      '));
 }
 {
-  // 예시를 고른 뒤 학생이 메소드와 호출을 더하면 7/7 이 되어야 한다
+  // 제안 목록에는 영문 속성명과 한글 뜻만 담기고, 자료형·초깃값은 학생이 정한다
+  const drone = CLASS_IDEAS.find((c) => c.en === 'Drone');
+  const d = designFromIdea(drone);
+  const shape = d.attrIdeas.every((a) => Object.keys(a).sort().join(',') === 'kor,name');
+  const okHint = d.className === 'Drone' && d.instName === 'myDrone' && shape
+    && d.attrIdeas.map((a) => `${a.kor}(${a.name})`).join(' ') === '고도(height) 배터리(battery)';
+  if (okHint) ok('제안 목록은 속성명·한글 뜻만 담는다 (자료형·초깃값은 학생 몫)');
+  else no('속성 제안 형태', JSON.stringify(d.attrIdeas));
+}
+{
+  // 예시를 고른 뒤 학생이 속성·메소드·호출을 직접 더하면 7/7 이 되어야 한다
   const car = CLASS_IDEAS.find((c) => c.en === 'Car');
   const d = designFromIdea(car);
+  d.attrs = [newAttr({ name: 'speed', kor: '속력', type: 'int', init: '0', fromParam: true })];
   d.methods = [newMethod({ name: 'accel', kor: '가속하기', kind: 'inc', attr: 'speed', param: 'amount' })];
   d.calls = [{ name: 'accel', args: '10' }, { name: 'getSpeed', args: '', print: true }];
   const { code } = generate(d, false);
   const r = runPython(code);
   const g = grade(code);
-  if (r.ok && g.count === 7) ok(`학생이 메소드·호출을 더하면 7/7 (출력: ${r.output.split('\n').join(' / ')})`);
-  else no('메소드 추가 후 7/7', (r.ok ? `평가요소 ${g.count}/7` : r.error) + '\n' + code);
-}
-{
-  // 예시가 속성 정보(한글 뜻·자료형·초깃값)는 채워 주는지
-  const atm = CLASS_IDEAS.find((c) => c.en === 'ATM');
-  const d = designFromIdea(atm);
-  const a = d.attrs[0];
-  const okAttr = d.className === 'ATM' && a.name === 'cash' && a.kor === '보유 현금'
-    && a.type === 'int' && a.init === '1000000' && a.fromParam === true
-    && d.attrs[1].fromParam === false && d.instName === 'myATM';
-  if (okAttr) ok('이름·속성(한글 뜻·자료형·초깃값)과 인스턴스명은 채워 준다');
-  else no('속성 채우기', JSON.stringify({ cls: d.className, inst: d.instName, attrs: d.attrs }, null, 1));
+  if (r.ok && g.count === 7) ok(`학생이 속성·메소드·호출을 더하면 7/7 (출력: ${r.output.split('\n').join(' / ')})`);
+  else no('학생이 채운 뒤 7/7', (r.ok ? `평가요소 ${g.count}/7` : r.error) + '\n' + code);
 }
 
 console.log('\n── 자료 파일 점검 ──');

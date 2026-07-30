@@ -91,9 +91,9 @@ export function mountDesign(root, app) {
     pickerBox.textContent = '';
     pickerBox.append(h('div.picker', {},
       h('p.hint.tight', {}, '수행평가 설계지에 실린 예시입니다. 고르면 ',
-        h('b', {}, '클래스 이름과 속성까지만'), ' 채워집니다. ',
-        h('b', {}, '메소드는 직접 설계해야 합니다.'),
-        ' 속성 이름도 자기 것으로 고쳐 쓰세요 — 예시를 그대로 내면 감점입니다.'),
+        h('b', {}, '클래스 이름만 채워지고'), ', 어떤 속성을 만들면 좋을지 ',
+        h('b', {}, '제안'), '해 드립니다. ',
+        '속성·생성자·접근자·설정자·메소드는 모두 직접 만들어야 합니다 — 그것이 이 수행평가의 설계입니다.'),
       text('', (v) => {
         const q = v.trim().toLowerCase();
         fill(!q ? CLASS_IDEAS : CLASS_IDEAS.filter((i) => i.ko.includes(q) || i.en.toLowerCase().includes(q)));
@@ -106,7 +106,7 @@ export function mountDesign(root, app) {
     Object.assign(d, designFromIdea(idea));
     pickerBox.style.display = 'none';
     refresh(true);
-    toast(`${idea.ko}(${idea.en}) 의 이름과 속성을 채웠습니다. 이제 3번에서 메소드를 직접 만들어 보세요.`);
+    toast(`${idea.ko}(${idea.en}) 로 정했습니다. 2번에 속성 제안이 있으니 보고 직접 만들어 보세요.`);
   }
 
   /* [2] 비공개 속성 */
@@ -119,6 +119,24 @@ export function mountDesign(root, app) {
         h('b', {}, '비공개 속성'), '이 됩니다. ',
         h('b', {}, '평가요소 2는 비공개 속성 1개 이상'), '을 요구합니다.'),
     );
+
+    /* 예시를 골랐다면 「이런 속성을 생각해 보세요」로 제안만 해 준다.
+       만들어 주지는 않는다 — 속성을 직접 추가해야 생성자·접근자·설정자를 스스로 결정한다. */
+    if (d.attrIdeas && d.attrIdeas.length) {
+      box.append(h('div.note.tip', {},
+        h('b', {}, '제안'),
+        h('div', {},
+          /* 클래스 이름이 영문이라 「Drone 라면 / Car 라면」처럼 조사가 갈린다.
+             줄표로 이어 조사를 아예 쓰지 않는다. (codegen 의 jo() 는 한글 낱말용) */
+          h('div', {}, d.className ? `${d.className} — 이런 속성을 생각해 볼 수 있습니다.`
+            : '이런 속성을 생각해 볼 수 있습니다.'),
+          h('div.idea-attrs', {}, d.attrIdeas.map((a) => h('span.idea-attr', {},
+            a.kor, h('span.en', {}, a.name)))),
+          h('div', { style: { marginTop: '6px' } },
+            '그대로 쓰지 않아도 됩니다. 아래 ', h('b', {}, '「+ 속성 추가」'),
+            ' 로 직접 만들면서 자료형·초깃값과 접근자·설정자를 스스로 정해 보세요.'))));
+    }
+
     if (!d.attrs.length) {
       box.append(h('div.empty', {}, '아직 속성이 없습니다. 아래 버튼으로 하나 추가해 보세요. 예) 속력, 배터리, 점수'));
     }

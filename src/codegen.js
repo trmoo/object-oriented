@@ -14,6 +14,9 @@ export function emptyDesign() {
     useStr: false,
     instName: '',
     calls: [],
+    /* 예시를 골랐을 때 「이런 속성을 생각해 보세요」로 보여 줄 제안 목록.
+       [{ name, kor }] 형태이고, 코드 생성에는 쓰이지 않는 안내용 자료다. */
+    attrIdeas: [],
   };
 }
 
@@ -284,22 +287,22 @@ export function generate(design, withMarks = true) {
 /**
  * 클래스 예시(CLASS_IDEAS 의 한 항목) → 설계의 출발점
  *
- * **클래스 이름과 속성까지만 채운다. 메소드와 호출은 비워 둔다.** (2026-07-30 지시)
- * 메소드를 무엇으로 만들지 정하는 것이 이 수행평가에서 학생이 할 설계이고
- * 평가요소 5의 핵심이다. 앱이 채워 주면 학생이 할 일이 없어진다.
- * 그래서 예시를 골라도 평가요소는 5/7 이고, 메소드 하나와 호출 하나가 숙제로 남는다.
+ * **클래스 이름만 채운다. 속성은 「제안 목록」으로만 건네고 아무것도 만들지 않는다.**
+ * (2026-07-30 지시)
+ *
+ * 왜 이렇게 하나:
+ *   속성을 만들어 주면 생성자·접근자·설정자가 딸려서 자동으로 생긴다.
+ *   그러면 평가요소 2·3·4 를 앱이 대신 채워 준 셈이 되어 학생이 배울 자리가 없어진다.
+ *   속성을 학생이 직접 추가하게 하면 자료형·초깃값·「생성자에서 받는가」·접근자·설정자를
+ *   하나하나 스스로 결정하게 된다. 제안은 무엇을 만들지 떠올리는 것만 돕는다.
+ *
+ * 그래서 예시를 골랐을 때 만족하는 평가요소는 1(클래스 정의)과 6(인스턴스 생성)뿐이다.
  */
 export function designFromIdea(idea) {
   const d = emptyDesign();
   d.className = idea.en;
-  d.attrs = idea.attrs.map(([name, kor, type, init], i) => newAttr({
-    name, kor, type, init,
-    fromParam: i === 0,   // 첫 속성만 생성자에서 받게 두고, 나머지는 초깃값 고정
-  }));
   d.instName = 'my' + idea.en;
-  d.methods = [];
-  d.calls = [];
-  d.useStr = false;
+  d.attrIdeas = idea.attrs.map(([name, kor]) => ({ name, kor }));
   return d;
 }
 
