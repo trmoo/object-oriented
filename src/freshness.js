@@ -21,6 +21,9 @@
 /** 새로 고침해도 안전한 시간 (밀리초). 이 시간이 지나면 학생이 쓰고 있을 수 있다. */
 const SAFE_WINDOW = 8000;
 
+/** 버전 값의 모양 — 빌드가 박는 12자리 16진수 (vite.config.js 의 해시 길이와 같게 유지) */
+const VERSION_SHAPE = /^[0-9a-f]{12}$/;
+
 export function checkFresh() {
   // file:// 로 더블클릭해 열었으면 받아 올 서버가 없다
   if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
@@ -46,8 +49,13 @@ export function checkFresh() {
     .then((text) => {
       if (!text) return;
       const latest = text.trim();
-      if (!latest || latest === mine) return;              // 이미 최신
-      if (touched || performance.now() - opened > SAFE_WINDOW) return; // 쓰고 있으면 건드리지 않는다
+      /* 받아 온 것이 정말 버전 값인지 확인한다.
+         이 파일을 교내 서버나 LMS 에 올려 두면 version.txt 가 없을 수 있는데,
+         없는 주소에 엉뚱한 안내 페이지를 200 으로 돌려주는 서버가 있다.
+         그 HTML 을 버전으로 믿으면 주소에 쓰레기가 붙는다. */
+      if (!VERSION_SHAPE.test(latest)) return;
+      if (latest === mine) return;                                     // 이미 최신
+      if (touched || performance.now() - opened > SAFE_WINDOW) return;  // 쓰고 있으면 건드리지 않는다
       url.searchParams.set('v', latest);
       location.replace(url.toString());
     })
