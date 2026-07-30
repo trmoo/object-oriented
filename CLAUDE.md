@@ -155,6 +155,7 @@ object-oriented/
 ├─ index.html          껍데기 (머리말·탭 버튼·패널 4개)
 ├─ src/
 │  ├─ main.js          탭 연결, 설계 상태(design)를 한 군데에 보관
+│  ├─ freshness.js     배포된 새 버전을 자동으로 받아 오게 함 (캐시 대응)
 │  ├─ pymini.js        ★ 교실용 미니 파이썬 해석기 (tokenize → parse → run)
 │  ├─ codegen.js       설계 → 파이썬 코드 조립, 예시→설계 변환
 │  ├─ rubric.js        평가요소 7가지 자동 검사 (pymini 의 AST 를 읽는다)
@@ -215,6 +216,20 @@ object-oriented/
   - `type="module"` 이 남아 있으면 **빌드를 일부러 실패시킨다** (더블클릭이 막히는 것을 방지).
   - `src/main.js` 는 `DOMContentLoaded` 를 기다린 뒤 화면을 만든다.
     일반 스크립트는 지연 실행되지 않아 `<head>` 에서 바로 돌기 때문이다. **이 가드를 지우면 안 된다.**
+- **배포 후 학생 화면이 옛 버전에 머무르지 않게 하는 장치** (`src/freshness.js`)
+  자바스크립트가 `index.html` 안에 통째로 들어가므로, 브라우저가 그 HTML 을 캐시하면
+  앱을 고쳐 배포해도 학생 화면에는 **옛 코드가 그대로 돌아간다.** Ctrl+F5 를 눌러야 바뀐다.
+  - 빌드가 결과물의 **내용 해시**를 `<meta name="app-version">` 에 박고 `dist/version.txt` 로도 낸다.
+    내용이 같으면 해시도 같아서 괜한 새로고침이 일어나지 않는다.
+  - 페이지가 열리면 `version.txt` 를 `cache:'no-store'` 로 받아 보고, 다르면
+    주소에 `?v=<새버전>` 을 붙여 다시 불러온다. 주소가 달라지므로 캐시를 타지 않는다.
+  - **자동 저장이 없는 앱이라 새로고침이 작업을 날릴 수 있다.** 그래서
+    ① 이미 `?v=` 가 붙은 주소에서는 다시 하지 않고(되돌림 방지)
+    ② 학생이 입력·클릭을 한 뒤에는 절대 새로고침하지 않으며
+    ③ 페이지가 열린 뒤 8초가 지나면 포기한다.
+  - `file://`(더블클릭)과 인터넷이 끊긴 교실에서는 검사를 건너뛴다.
+  - `index.html` 에 `<meta name="app-version" content="__APP_VERSION__">` 이 없으면
+    **빌드를 실패시킨다.** 이 장치가 조용히 꺼지는 것을 막기 위한 것이다.
 - Claude Code 미리보기 설정은 이 폴더의 `.claude/launch.json` 에 두 개 있다.
   `object-oriented`(개발, 5174) / `object-oriented-dist`(빌드 결과, 5175)
 
