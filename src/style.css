@@ -164,7 +164,18 @@ pre.code .self { color: #c9a4ff; font-style: italic; }
 pre.code .priv { color: #ffb4b4; }                  /* 비공개 속성 */
 pre.code .mark { color: #ffd166; font-weight: 700; font-style: normal; }
 
-.code-wrap { position: relative; }
+/* 코드가 길어지면 화면 밖으로 자라지 않고 이 상자 안에서 스크롤된다.
+   (오른쪽 칼럼이 sticky 라서, 상자가 계속 커지면 평가요소가 화면 밖으로 밀려난다) */
+.code-wrap {
+  position: relative;
+  /* 화면 높이에 맞추되(58vh), 어떤 환경에서도 360px 아래로는 줄지 않는다.
+     (vh 를 0 으로 계산하는 화면에서 상자가 아예 접히는 것을 막는 하한) */
+  max-height: max(360px, min(58vh, 620px));
+  overflow: auto;                /* 세로·가로 모두 이 상자에서 스크롤 */
+  border-radius: 12px;
+  background: var(--code-bg);    /* 코드가 짧을 때도 상자 색이 이어지게 */
+}
+.code-wrap > pre.code { overflow: visible; border-radius: 0; min-height: 100%; }
 .code-bar {
   display: flex; justify-content: space-between; align-items: center;
   gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
@@ -354,18 +365,9 @@ table.plain th { background: #eef1f8; }
 }
 #toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* ── 인쇄 (설계지) ──────────────────────────────────────────────────────── */
-#print-sheet { display: none; }
+/* ── 인쇄 ───────────────────────────────────────────────────────────────── */
+/* 「설계지 인쇄」 기능을 없애서(2026-07-30) 인쇄용 설계지 스타일도 함께 지웠다.
+   브라우저 인쇄를 누르면 화면 그대로 나온다. 배경만 흰색으로 맞춘다. */
 @media print {
-  header, .tabs, main, #toast { display: none !important; }
-  #print-sheet { display: block !important; padding: 0; color: #000; }
-  #print-sheet h2 { font-size: 20pt; margin: 0 0 4pt; }
-  #print-sheet .who { font-size: 11pt; margin-bottom: 12pt; }
-  #print-sheet table { width: 100%; border-collapse: collapse; font-size: 11pt; margin-bottom: 12pt; }
-  #print-sheet th, #print-sheet td { border: 1px solid #000; padding: 6pt 8pt; text-align: left; vertical-align: top; }
-  #print-sheet th { width: 30%; background: #eee; }
-  #print-sheet pre { font-size: 10pt; border: 1px solid #000; padding: 8pt; white-space: pre-wrap; }
-  #print-sheet .rubric-print { font-size: 10pt; }
-  #print-sheet .rubric-print li { margin-bottom: 3pt; }
   body { background: #fff; }
 }

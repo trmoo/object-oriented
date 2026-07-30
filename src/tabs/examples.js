@@ -106,8 +106,13 @@ export function mountExamples(root, app) {
           h('p.hint', {}, '교안 예제라도 평가요소를 모두 채우지는 못합니다. ',
             h('b', {}, '수행평가에서는 예제를 그대로 쓰면 감점'),
             '이므로, 설계실에서 나만의 클래스를 만들어야 합니다.'))),
-      ex.bug ? bugQuiz(ex, run) : null,
     );
+    /* 오류 찾기 문제가 있는 예제(Circle·Car)에만 카드를 덧붙인다.
+       ⚠ DOM 의 append() 는 Node 가 아닌 값을 글자로 바꿔 넣는다. 그래서 조건부 요소를
+       `ex.bug ? bugQuiz(…) : null` 처럼 append() 인수로 바로 주면 문제가 없는 예제에서
+       화면 맨 아래에 「null」 이라는 글자가 찍힌다. (h() 의 자식 자리는 걸러 주지만
+       append() 는 걸러 주지 않는다) */
+    if (ex.bug) bodyBox.append(bugQuiz(ex, run));
   }
 
   /* ── 오류 찾기 문제 ─────────────────────────────────────────────────── */

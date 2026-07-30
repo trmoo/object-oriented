@@ -9,7 +9,6 @@
 export function emptyDesign() {
   return {
     className: '',
-    korName: '',
     attrs: [],
     methods: [],
     useStr: false,
@@ -301,7 +300,6 @@ export function guessKind(attr, methodName) {
 export function designFromIdea(idea) {
   const d = emptyDesign();
   d.className = idea.en;
-  d.korName = idea.ko;
   d.attrs = idea.attrs.map(([name, kor, type, init], i) => newAttr({
     name, kor, type, init,
     fromParam: i === 0,
@@ -343,25 +341,4 @@ export function designFromIdea(idea) {
   return d;
 }
 
-/** 설계 → 설계지 5칸 요약 (인쇄·제출용) */
-export function designSheet(design) {
-  const attrs = design.attrs.filter((a) => a.name);
-  const inst = design.instName || 'my' + cap(design.className || '클래스명');
-  const methodNames = [
-    '생성자(__init__)',
-    ...attrs.filter((a) => a.getter).map((a) => `접근자(${getterName(a.name)})`),
-    ...attrs.filter((a) => a.setter).map((a) => `설정자(${setterName(a.name)})`),
-    ...design.methods.filter((m) => m.name).map((m) => `${m.name}${m.kor ? `(${m.kor})` : ''}`),
-    ...(design.useStr && attrs.length ? ['문자열표현메소드(__str__)'] : []),
-  ];
-  const args = ctorParams(design).map((a) => (a.ctorArg ?? '').trim() || a.init || DEFAULT_INIT[a.type]);
-  return {
-    className: design.className || '(비어 있음)',
-    attrs: attrs.length ? attrs.map((a) => `${a.kor ? a.kor + ' ' : ''}(__${a.name})`).join(', ') : '(비어 있음)',
-    methods: methodNames.join(', '),
-    create: `${inst} = ${design.className || '클래스명'}(${args.join(', ')})`,
-    calls: design.calls.filter((c) => c.name).length
-      ? design.calls.filter((c) => c.name).map((c) => `${c.print ? 'print(' : ''}${inst}.${c.name}(${(c.args || '').trim()})${c.print ? ')' : ''}`).join(', ')
-      : '(비어 있음)',
-  };
-}
+/* 설계지 5칸 요약(designSheet)은 「설계지 인쇄」 기능과 함께 없앴다. (2026-07-30) */
