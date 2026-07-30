@@ -90,8 +90,10 @@ export function mountDesign(root, app) {
     };
     pickerBox.textContent = '';
     pickerBox.append(h('div.picker', {},
-      h('p.hint.tight', {}, '수행평가 설계지에 실린 예시입니다. 고르면 속성·메소드 아이디어까지 채워집니다. ',
-        h('b', {}, '반드시 자기 것으로 고쳐 쓰세요.'), ' 예시를 그대로 내면 감점입니다.'),
+      h('p.hint.tight', {}, '수행평가 설계지에 실린 예시입니다. 고르면 ',
+        h('b', {}, '클래스 이름과 속성까지만'), ' 채워집니다. ',
+        h('b', {}, '메소드는 직접 설계해야 합니다.'),
+        ' 속성 이름도 자기 것으로 고쳐 쓰세요 — 예시를 그대로 내면 감점입니다.'),
       text('', (v) => {
         const q = v.trim().toLowerCase();
         fill(!q ? CLASS_IDEAS : CLASS_IDEAS.filter((i) => i.ko.includes(q) || i.en.toLowerCase().includes(q)));
@@ -104,7 +106,7 @@ export function mountDesign(root, app) {
     Object.assign(d, designFromIdea(idea));
     pickerBox.style.display = 'none';
     refresh(true);
-    toast(`${idea.ko}(${idea.en}) 설계를 불러왔습니다. 이제 내 것으로 고쳐 보세요.`);
+    toast(`${idea.ko}(${idea.en}) 의 이름과 속성을 채웠습니다. 이제 3번에서 메소드를 직접 만들어 보세요.`);
   }
 
   /* [2] 비공개 속성 */
