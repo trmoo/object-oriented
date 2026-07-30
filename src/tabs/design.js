@@ -429,7 +429,7 @@ export function mountDesign(root, app) {
         h('div.note.tip', {}, h('b', {}, '먼저'),
           '위 1번에서 클래스 이름을 정하면 평가요소 7가지를 하나씩 확인해 드립니다.'),
         h('ul.rubric', {}, RUBRIC_ITEMS.map((it) => h('li.fail', {},
-          h('div.rb-mark', {}, '⬜'),
+          h('div.rb-mark', {}, '☐'),
           h('div', {},
             h('div.rb-title', {}, `${'①②③④⑤⑥⑦'[it.n - 1]} ${it.title}`),
             it.tips.map((t) => h('span.rb-tip', {}, `Tip ${t}`)))))),
@@ -457,7 +457,8 @@ export function mountDesign(root, app) {
     const ul = h('ul.rubric');
     g.items.forEach((it) => {
       ul.append(h('li', { class: it.pass ? 'pass' : 'fail' },
-        h('div.rb-mark', {}, it.pass ? '✅' : '⬜'),
+        /* 만족한 것은 체크된 상자, 못 한 것은 빈 상자 (교안 예제 탭과 같은 표시) */
+        h('div.rb-mark', {}, it.pass ? '☑' : '☐'),
         h('div', {},
           h('div.rb-title', {}, `${'①②③④⑤⑥⑦'[it.n - 1]} ${it.title}`),
           it.detail && h('div.rb-detail', {}, it.detail),
