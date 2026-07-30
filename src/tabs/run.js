@@ -159,7 +159,7 @@ export function mountRun(root, app) {
         '평가요소 7가지를 모두 만족합니다. 이제 IDLE 에서 직접 타이핑해 보는 연습을 하세요.'));
     } else {
       rubricBox.append(h('ul.rubric', {}, missing.map((it) => h('li.fail', {},
-        h('div.rb-mark', {}, '⬜'),
+        h('div.rb-mark', {}, '☐'),   // 표시는 다른 탭과 같게 (빈 상자)
         h('div', {},
           h('div.rb-title', {}, `${'①②③④⑤⑥⑦'[it.n - 1]} ${it.title}`),
           it.detail && h('div.rb-detail', {}, it.detail))))));
