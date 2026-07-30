@@ -90,16 +90,19 @@ export function mountExamples(root, app) {
           h('div.score-head', {},
             h('div', {},
               h('div.score-num', {}, `평가요소 ${rubric.count} / 7`),
-              h('div.score-note', {}, rubric.items.filter((i) => i.pass).map((i) => i.n).join(', ') + '번 만족')),
+              h('div.score-note', {}, rubric.scoreLabel)),
             h('div', { style: { marginLeft: 'auto', textAlign: 'right' } },
               h('div.score-big', {}, rubric.score === '기본점수' ? '기본점수' : `${rubric.score}점`))),
-          rubric.items.filter((i) => !i.pass).length
-            ? h('ul.rubric', {}, rubric.items.filter((i) => !i.pass).map((it) => h('li.fail', {},
-              h('div.rb-mark', {}, '⬜'),
-              h('div', {},
-                h('div.rb-title', {}, `${'①②③④⑤⑥⑦'[it.n - 1]} ${it.title}`),
-                it.detail && h('div.rb-detail', {}, it.detail)))))
-            : h('div.note.tip', {}, h('b', {}, '완성'), '평가요소를 모두 만족하는 코드입니다.'),
+          /* 만족한 것과 못 한 것을 한자리에서 보도록 7개를 모두 보여 준다.
+             만족한 항목은 체크된 상자(☑)로 표시한다. */
+          h('ul.rubric', {}, rubric.items.map((it) => h('li', { class: it.pass ? 'pass' : 'fail' },
+            h('div.rb-mark', {}, it.pass ? '☑' : '☐'),
+            h('div', {},
+              h('div.rb-title', {}, `${'①②③④⑤⑥⑦'[it.n - 1]} ${it.title}`),
+              it.detail && h('div.rb-detail', {}, it.detail))))),
+          rubric.count >= 7
+            ? h('div.note.tip', {}, h('b', {}, '완성'), '평가요소 7가지를 모두 만족하는 코드입니다.')
+            : null,
           h('p.hint', {}, '교안 예제라도 평가요소를 모두 채우지는 못합니다. ',
             h('b', {}, '수행평가에서는 예제를 그대로 쓰면 감점'),
             '이므로, 설계실에서 나만의 클래스를 만들어야 합니다.'))),
