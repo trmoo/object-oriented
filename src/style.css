@@ -368,6 +368,16 @@ table.plain th, table.plain td { border: 1px solid var(--line); padding: 9px 12p
 table.plain th { background: #eef1f8; }
 .table-scroll { overflow-x: auto; }
 
+/* ── 페이지 아래 제작자·이용 범위 안내 ──────────────────────────────────── */
+footer {
+  max-width: 1600px; margin: 0 auto; padding: 26px 22px 34px;
+  border-top: 1px solid var(--line); text-align: center; color: var(--ink-soft);
+}
+footer p { margin: 0; }
+footer .credit { font-size: 16px; font-weight: 600; }
+footer .credit a { color: var(--brand-dark); text-decoration: underline; }
+footer .terms { font-size: 15px; margin-top: 6px; line-height: 1.55; }
+
 /* ── 알림 토스트 ────────────────────────────────────────────────────────── */
 #toast {
   position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
