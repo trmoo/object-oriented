@@ -153,16 +153,16 @@ export function mountRun(root, app) {
       h('div', { style: { marginLeft: 'auto', textAlign: 'right' } },
         h('div.score-big', {}, g.score === '기본점수' ? '기본점수' : `${g.score}점`),
         h('div.score-note', {}, '예상 점수 (참고용)'))));
-    const missing = g.items.filter((i) => !i.pass);
-    if (!missing.length) {
+    /* 만족한 것과 못 한 것을 한자리에서 보도록 7개를 모두 보여 준다.
+       (전에는 미달 항목만 나와서 무엇을 이미 채웠는지 알 수 없었다. 다른 탭과 같게 맞춤) */
+    rubricBox.append(h('ul.rubric', {}, g.items.map((it) => h('li', { class: it.pass ? 'pass' : 'fail' },
+      h('div.rb-mark', {}, it.pass ? '☑' : '☐'),
+      h('div', {},
+        h('div.rb-title', {}, `${'①②③④⑤⑥⑦'[it.n - 1]} ${it.title}`),
+        it.detail && h('div.rb-detail', {}, it.detail))))));
+    if (g.count >= 7) {
       rubricBox.append(h('div.note.tip', {}, h('b', {}, '완성'),
         '평가요소 7가지를 모두 만족합니다. 이제 IDLE 에서 직접 타이핑해 보는 연습을 하세요.'));
-    } else {
-      rubricBox.append(h('ul.rubric', {}, missing.map((it) => h('li.fail', {},
-        h('div.rb-mark', {}, '☐'),   // 표시는 다른 탭과 같게 (빈 상자)
-        h('div', {},
-          h('div.rb-title', {}, `${'①②③④⑤⑥⑦'[it.n - 1]} ${it.title}`),
-          it.detail && h('div.rb-detail', {}, it.detail))))));
     }
     for (const n of g.notes.filter((x) => x.level === 'warn')) {
       rubricBox.append(h('div.note.warn', {}, h('b', {}, '확인'), n.text));
