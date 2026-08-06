@@ -3,6 +3,10 @@
   "private": true,
   "version": "1.0.0",
   "description": "나만의 클래스 설계실 — 고등학교 정보/프로그래밍 객체 지향 프로그래밍 학습 웹앱",
+  "author": "티쳐무 (trmoo)",
+  "license": "UNLICENSED",
+  "homepage": "https://trmoo.github.io/object-oriented/",
+  "repository": { "type": "git", "url": "https://github.com/trmoo/object-oriented.git" },
   "type": "module",
   "scripts": {
     "dev": "vite",
