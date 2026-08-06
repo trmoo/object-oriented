@@ -380,6 +380,7 @@ footer .credit a { color: var(--brand-dark); text-decoration: underline; }
 footer .mail { color: var(--brand-dark); white-space: nowrap; }
 footer .mail > span { display: inline; }
 footer .terms { font-size: 15px; margin-top: 6px; line-height: 1.55; }
+footer .copy { font-size: 14px; margin-top: 10px; color: var(--ink-soft); }
 
 /* ── 알림 토스트 ────────────────────────────────────────────────────────── */
 #toast {
